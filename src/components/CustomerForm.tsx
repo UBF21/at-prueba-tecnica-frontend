@@ -1,28 +1,28 @@
 import { motion } from 'framer-motion';
 import { useValiValid } from 'vali-valid-react';
 import { rule } from 'vali-valid';
-import { useCreateProductMutation, useUpdateProductMutation } from '../hooks/useProductMutations';
-import type { Product, CreateProductRequest, UpdateProductRequest } from '../types';
+import { useCreateCustomerMutation, useUpdateCustomerMutation } from '../hooks/useCustomerMutations';
+import type { Customer, CreateCustomerRequest, UpdateCustomerRequest } from '../types';
 
-interface ProductFormProps {
-  product?: Product;
+interface CustomerFormProps {
+  customer?: Customer;
   onSuccess?: () => void;
 }
 
 /**
- * Product form with Vali-Valid validation
+ * Customer form with Vali-Valid validation
  * Used for create/edit in Sheet drawer
  */
-export function ProductForm({ product, onSuccess }: ProductFormProps) {
-  const createMutation = useCreateProductMutation();
-  const updateMutation = useUpdateProductMutation();
+export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
+  const createMutation = useCreateCustomerMutation();
+  const updateMutation = useUpdateCustomerMutation();
 
   const { form, errors, handleChange, handleBlur, handleSubmit, isSubmitting, isValid } = useValiValid({
     initial: {
-      name: product?.name || '',
-      description: product?.description || '',
-      unitPrice: product?.unitPrice || 0,
-      stock: product?.stock || 0,
+      name: customer?.name || '',
+      email: customer?.email || '',
+      phone: customer?.phone || '',
+      address: customer?.address || '',
     },
     validations: [
       {
@@ -33,21 +33,23 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           .build(),
       },
       {
-        field: 'description',
+        field: 'email',
+        validations: rule()
+          .required('El email es requerido')
+          .email('El email debe ser válido')
+          .maxLength(100, 'Máximo 100 caracteres')
+          .build(),
+      },
+      {
+        field: 'phone',
+        validations: rule()
+          .maxLength(20, 'Máximo 20 caracteres')
+          .build(),
+      },
+      {
+        field: 'address',
         validations: rule()
           .maxLength(500, 'Máximo 500 caracteres')
-          .build(),
-      },
-      {
-        field: 'unitPrice',
-        validations: rule()
-          .required()
-          .build(),
-      },
-      {
-        field: 'stock',
-        validations: rule()
-          .required()
           .build(),
       },
     ],
@@ -58,25 +60,25 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
 
   const handleFormSubmit = handleSubmit(async (values) => {
     try {
-      if (product) {
-        // Update existing product
-        const updateData: UpdateProductRequest = {
+      if (customer) {
+        // Update existing customer
+        const updateData: UpdateCustomerRequest = {
           name: values.name,
-          description: values.description || undefined,
-          unitPrice: values.unitPrice,
-          stock: values.stock,
+          email: values.email,
+          phone: values.phone || undefined,
+          address: values.address || undefined,
         };
         await updateMutation.mutateAsync({
-          id: product.id,
+          id: customer.id,
           data: updateData,
         });
       } else {
-        // Create new product
-        const createData: CreateProductRequest = {
+        // Create new customer
+        const createData: CreateCustomerRequest = {
           name: values.name,
-          description: values.description || undefined,
-          unitPrice: values.unitPrice,
-          stock: values.stock,
+          email: values.email,
+          phone: values.phone || undefined,
+          address: values.address || undefined,
         };
         await createMutation.mutateAsync(createData);
       }
@@ -98,7 +100,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }} className="space-y-5">
-      {/* Product Name */}
+      {/* Name */}
       <motion.div
         custom={0}
         initial="hidden"
@@ -106,7 +108,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         variants={fieldVariants}
       >
         <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-          Nombre del Producto *
+          Nombre *
         </label>
         <input
           type="text"
@@ -116,7 +118,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 ${
             errors.name ? 'border-semantic-danger' : 'border-border-default'
           }`}
-          placeholder="Producto ABC"
+          placeholder="Juan Pérez"
           disabled={isSubmitting}
         />
         {errors.name?.[0] && (
@@ -124,7 +126,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         )}
       </motion.div>
 
-      {/* Description */}
+      {/* Email */}
       <motion.div
         custom={1}
         initial="hidden"
@@ -132,25 +134,25 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         variants={fieldVariants}
       >
         <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-          Descripción
+          Email *
         </label>
-        <textarea
-          value={form.description}
-          onChange={(e) => handleChange('description', e.target.value)}
-          onBlur={() => handleBlur('description')}
-          className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 resize-none ${
-            errors.description ? 'border-semantic-danger' : 'border-border-default'
+        <input
+          type="email"
+          value={form.email}
+          onChange={(e) => handleChange('email', e.target.value)}
+          onBlur={() => handleBlur('email')}
+          className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 ${
+            errors.email ? 'border-semantic-danger' : 'border-border-default'
           }`}
-          placeholder="Descripción del producto..."
-          rows={3}
+          placeholder="juan@ejemplo.com"
           disabled={isSubmitting}
         />
-        {errors.description?.[0] && (
-          <p className="text-semantic-danger text-xs mt-2">{errors.description[0]}</p>
+        {errors.email?.[0] && (
+          <p className="text-semantic-danger text-xs mt-2">{errors.email[0]}</p>
         )}
       </motion.div>
 
-      {/* Unit Price */}
+      {/* Phone */}
       <motion.div
         custom={2}
         initial="hidden"
@@ -158,27 +160,25 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         variants={fieldVariants}
       >
         <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-          Precio Unitario *
+          Teléfono
         </label>
         <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={form.unitPrice}
-          onChange={(e) => handleChange('unitPrice', parseFloat(e.target.value) || 0)}
-          onBlur={() => handleBlur('unitPrice')}
+          type="tel"
+          value={form.phone}
+          onChange={(e) => handleChange('phone', e.target.value)}
+          onBlur={() => handleBlur('phone')}
           className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 ${
-            errors.unitPrice ? 'border-semantic-danger' : 'border-border-default'
+            errors.phone ? 'border-semantic-danger' : 'border-border-default'
           }`}
-          placeholder="0.00"
+          placeholder="+56912345678"
           disabled={isSubmitting}
         />
-        {errors.unitPrice?.[0] && (
-          <p className="text-semantic-danger text-xs mt-2">{errors.unitPrice[0]}</p>
+        {errors.phone?.[0] && (
+          <p className="text-semantic-danger text-xs mt-2">{errors.phone[0]}</p>
         )}
       </motion.div>
 
-      {/* Stock */}
+      {/* Address */}
       <motion.div
         custom={3}
         initial="hidden"
@@ -186,22 +186,21 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         variants={fieldVariants}
       >
         <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-          Stock *
+          Dirección
         </label>
-        <input
-          type="number"
-          min="0"
-          value={form.stock}
-          onChange={(e) => handleChange('stock', parseInt(e.target.value) || 0)}
-          onBlur={() => handleBlur('stock')}
-          className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 ${
-            errors.stock ? 'border-semantic-danger' : 'border-border-default'
+        <textarea
+          value={form.address}
+          onChange={(e) => handleChange('address', e.target.value)}
+          onBlur={() => handleBlur('address')}
+          className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 resize-none ${
+            errors.address ? 'border-semantic-danger' : 'border-border-default'
           }`}
-          placeholder="0"
+          placeholder="Calle principal 123, Apto 4B"
+          rows={3}
           disabled={isSubmitting}
         />
-        {errors.stock?.[0] && (
-          <p className="text-semantic-danger text-xs mt-2">{errors.stock[0]}</p>
+        {errors.address?.[0] && (
+          <p className="text-semantic-danger text-xs mt-2">{errors.address[0]}</p>
         )}
       </motion.div>
 
@@ -218,17 +217,17 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           whileTap={isValid && !isSubmitting ? { scale: 0.98 } : {}}
           type="submit"
           disabled={isSubmitting || !isValid}
-          className="flex-1 px-4 py-3 bg-gold-primary hover:bg-gold-bright disabled:bg-gold-muted text-surface-base rounded-lg font-semibold transition-all duration-200"
+          className="flex-1 px-4 py-3 bg-gold-primary hover:bg-gold-bright disabled:bg-gold-muted disabled:cursor-not-allowed text-surface-base rounded-lg font-semibold transition-all duration-200"
         >
           {isSubmitting
             ? 'Guardando...'
-            : product
-              ? 'Actualizar Producto'
-              : 'Crear Producto'}
+            : customer
+              ? 'Actualizar Cliente'
+              : 'Crear Cliente'}
         </motion.button>
       </motion.div>
     </form>
   );
 }
 
-export default ProductForm;
+export default CustomerForm;

@@ -1,5 +1,9 @@
-import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useValiValid } from 'vali-valid-react';
+import { rule } from 'vali-valid';
 import { useCreateOrderMutation, useUpdateOrderMutation } from '../hooks/useOrderMutations';
+import { useCustomersComboBox } from '../hooks/useCustomersComboBox';
+import { Dropdown } from './Dropdown';
 import type { Order, OrderStatus, CreateOrderRequest, UpdateOrderRequest } from '../types';
 
 interface OrderFormProps {
@@ -7,65 +11,50 @@ interface OrderFormProps {
   onSuccess?: () => void;
 }
 
-interface FormErrors {
-  orderNumber?: string;
-  customerId?: string;
-  status?: string;
-}
-
 /**
  * Order form with Vali-Valid validation
  * Used for create/edit in Sheet drawer
  */
 export function OrderForm({ order, onSuccess }: OrderFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    orderNumber: order?.orderNumber || '',
-    customerId: order?.customerId || 1,
-    status: order?.status || 'Pending',
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-
   const createMutation = useCreateOrderMutation();
   const updateMutation = useUpdateOrderMutation();
+  const { data: customers, isLoading: customersLoading } = useCustomersComboBox();
 
-  // Validation function
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+  const { form, errors, handleChange, handleBlur, handleSubmit, isSubmitting, isValid } = useValiValid({
+    initial: {
+      orderNumber: order?.orderNumber || '',
+      customerId: order?.customerId || '',
+      status: order?.status || 'Pending',
+    },
+    validations: [
+      {
+        field: 'orderNumber',
+        validations: rule()
+          .required('Número de orden requerido')
+          .maxLength(50, 'Máximo 50 caracteres')
+          .build(),
+      },
+      {
+        field: 'customerId',
+        validations: !order
+          ? rule()
+              .required('Cliente requerido')
+              .build()
+          : rule().build(),
+      },
+    ],
+    validateOnBlur: true,
+    validateOnSubmit: true,
+    validateOnMount: true,
+  });
 
-    if (!formData.orderNumber.trim()) {
-      newErrors.orderNumber = 'Número de orden es requerido';
-    } else if (formData.orderNumber.length > 50) {
-      newErrors.orderNumber = 'El número de orden debe ser menor a 50 caracteres';
-    }
-
-    if (!order && formData.customerId <= 0) {
-      newErrors.customerId = 'ID del cliente debe ser mayor a 0';
-    }
-
-    if (!['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].includes(formData.status)) {
-      newErrors.status = 'Estado inválido';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const handleFormSubmit = handleSubmit(async (values) => {
     try {
       if (order) {
         // Update existing order
         const updateData: UpdateOrderRequest = {
-          orderNumber: formData.orderNumber,
-          status: formData.status as any,
+          orderNumber: values.orderNumber,
+          status: values.status as OrderStatus,
         };
         await updateMutation.mutateAsync({
           id: order.id,
@@ -74,72 +63,94 @@ export function OrderForm({ order, onSuccess }: OrderFormProps) {
       } else {
         // Create new order
         const createData: CreateOrderRequest = {
-          orderNumber: formData.orderNumber,
-          customerId: formData.customerId,
+          orderNumber: values.orderNumber,
+          customerId: values.customerId,
         };
         await createMutation.mutateAsync(createData);
       }
 
       onSuccess?.();
-    } finally {
-      setIsSubmitting(false);
+    } catch (error) {
+      // Errors are handled by mutations
     }
+  });
+
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.08 },
+    }),
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }} className="space-y-5">
       {/* Order Number */}
-      <div>
-        <label className="block text-sm font-medium text-white mb-1">
+      <motion.div
+        custom={0}
+        initial="hidden"
+        animate="visible"
+        variants={fieldVariants}
+      >
+        <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
           Número de Orden *
         </label>
         <input
           type="text"
-          value={formData.orderNumber}
-          onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
-          className={`w-full px-3 py-2 bg-slate-700 border rounded text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.orderNumber ? 'border-red-500' : 'border-slate-600'
+          value={form.orderNumber}
+          onChange={(e) => handleChange('orderNumber', e.target.value)}
+          onBlur={() => handleBlur('orderNumber')}
+          className={`w-full px-4 py-3 bg-surface-overlay border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-dim transition-colors duration-200 ${
+            errors.orderNumber ? 'border-semantic-danger' : 'border-border-default'
           }`}
           placeholder="ORD-001"
           disabled={isSubmitting}
         />
-        {errors.orderNumber && (
-          <p className="text-red-400 text-xs mt-1">{errors.orderNumber}</p>
+        {errors.orderNumber?.[0] && (
+          <p className="text-semantic-danger text-xs mt-2">{errors.orderNumber[0]}</p>
         )}
-      </div>
+      </motion.div>
 
-      {/* Customer ID */}
+      {/* Customer Select */}
       {!order && (
-        <div>
-          <label className="block text-sm font-medium text-white mb-1">
-            ID Cliente *
+        <motion.div
+          custom={1}
+          initial="hidden"
+          animate="visible"
+          variants={fieldVariants}
+        >
+          <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+            Cliente *
           </label>
-          <input
-            type="number"
-            value={formData.customerId}
-            onChange={(e) => setFormData({ ...formData, customerId: parseInt(e.target.value) })}
-            className={`w-full px-3 py-2 bg-slate-700 border rounded text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.customerId ? 'border-red-500' : 'border-slate-600'
-            }`}
-            placeholder="1"
+          <Dropdown
+            value={form.customerId}
+            onChange={(value) => handleChange('customerId', value)}
+            options={customers || []}
+            placeholder="Seleccionar cliente..."
             disabled={isSubmitting}
+            isLoading={customersLoading}
+            error={errors.customerId?.[0]}
           />
-          {errors.customerId && (
-            <p className="text-red-400 text-xs mt-1">{errors.customerId}</p>
-          )}
-        </div>
+        </motion.div>
       )}
 
       {/* Status (Edit only) */}
       {order && (
-        <div>
-          <label className="block text-sm font-medium text-white mb-1">
+        <motion.div
+          custom={1}
+          initial="hidden"
+          animate="visible"
+          variants={fieldVariants}
+        >
+          <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
             Estado
           </label>
           <select
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as OrderStatus })}
-            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.status}
+            onChange={(e) => handleChange('status', e.target.value as OrderStatus)}
+            onBlur={() => handleBlur('status')}
+            className="w-full px-4 py-3 bg-surface-overlay border border-border-default rounded-lg text-text-primary focus:outline-none focus:border-gold-dim transition-colors duration-200"
             disabled={isSubmitting}
           >
             <option value="Pending">Pendiente</option>
@@ -148,26 +159,34 @@ export function OrderForm({ order, onSuccess }: OrderFormProps) {
             <option value="Delivered">Entregado</option>
             <option value="Cancelled">Cancelado</option>
           </select>
-          {errors.status && (
-            <p className="text-red-400 text-xs mt-1">{errors.status}</p>
+          {errors.status?.[0] && (
+            <p className="text-semantic-danger text-xs mt-2">{errors.status[0]}</p>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Submit Button */}
-      <div className="flex gap-2 pt-4">
-        <button
+      <motion.div
+        custom={2}
+        initial="hidden"
+        animate="visible"
+        variants={fieldVariants}
+        className="flex gap-2 pt-5 border-t border-border-default mt-6"
+      >
+        <motion.button
+          whileHover={isValid && !isSubmitting ? { scale: 1.02 } : {}}
+          whileTap={isValid && !isSubmitting ? { scale: 0.98 } : {}}
           type="submit"
-          disabled={isSubmitting}
-          className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded font-medium transition"
+          disabled={isSubmitting || !isValid}
+          className="flex-1 px-4 py-3 bg-gold-primary hover:bg-gold-bright disabled:bg-gold-muted text-surface-base rounded-lg font-semibold transition-all duration-200"
         >
           {isSubmitting
             ? 'Guardando...'
             : order
               ? 'Actualizar Orden'
               : 'Crear Orden'}
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </form>
   );
 }

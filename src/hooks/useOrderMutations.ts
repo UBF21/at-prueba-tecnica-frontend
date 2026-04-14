@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   createOrder,
   updateOrder,
@@ -22,6 +23,10 @@ export function useCreateOrderMutation() {
     mutationFn: (data: CreateOrderRequest) => createOrder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('Orden creada exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al crear la orden');
     },
   });
 }
@@ -38,12 +43,16 @@ export function useUpdateOrderMutation() {
       id,
       data,
     }: {
-      id: number;
+      id: string;
       data: UpdateOrderRequest;
     }) => updateOrder(id, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('Orden actualizada exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al actualizar la orden');
     },
   });
 }
@@ -56,9 +65,13 @@ export function useDeleteOrderMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteOrder(id),
+    mutationFn: (id: string) => deleteOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('Orden eliminada exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al eliminar la orden');
     },
   });
 }
@@ -75,7 +88,7 @@ export function useAddOrderItemMutation() {
       orderId,
       request,
     }: {
-      orderId: number;
+      orderId: string;
       request: AddOrderItemRequest;
     }) => addOrderItem(orderId, request),
     onSuccess: (_response, variables) => {

@@ -31,7 +31,7 @@ export async function getOrders(
  * Fetch a single order by ID.
  * Returns ApiResponse with order data.
  */
-export async function getOrderById(id: number): Promise<ApiResponse<Order>> {
+export async function getOrderById(id: string): Promise<ApiResponse<Order>> {
   return apiFetch<ApiResponse<Order>>(`/api/orders/${id}`);
 }
 
@@ -53,7 +53,7 @@ export async function createOrder(
  * Returns ApiResponse with updated order data.
  */
 export async function updateOrder(
-  id: number,
+  id: string,
   data: UpdateOrderRequest
 ): Promise<ApiResponse<Order>> {
   return apiFetch<ApiResponse<Order>>(`/api/orders/${id}`, {
@@ -67,7 +67,7 @@ export async function updateOrder(
  * Returns ApiResponse with boolean result.
  */
 export async function deleteOrder(
-  id: number
+  id: string
 ): Promise<ApiResponse<boolean>> {
   return apiFetch<ApiResponse<boolean>>(`/api/orders/${id}`, {
     method: 'DELETE',
@@ -79,7 +79,7 @@ export async function deleteOrder(
  * Returns ApiResponse with updated order data including items.
  */
 export async function addOrderItem(
-  orderId: number,
+  orderId: string,
   request: AddOrderItemRequest
 ): Promise<ApiResponse<Order>> {
   return apiFetch<ApiResponse<Order>>(`/api/orders/${orderId}/items`, {

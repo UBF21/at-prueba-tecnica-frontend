@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   createProduct,
   updateProduct,
@@ -20,6 +21,10 @@ export function useCreateProductMutation() {
     mutationFn: (data: CreateProductRequest) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Producto creado exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al crear el producto');
     },
   });
 }
@@ -36,12 +41,16 @@ export function useUpdateProductMutation() {
       id,
       data,
     }: {
-      id: number;
+      id: string;
       data: UpdateProductRequest;
     }) => updateProduct(id, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Producto actualizado exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al actualizar el producto');
     },
   });
 }
@@ -54,9 +63,13 @@ export function useDeleteProductMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteProduct(id),
+    mutationFn: (id: string) => deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Producto eliminado exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al eliminar el producto');
     },
   });
 }

@@ -27,7 +27,7 @@ export function useOrders(params?: GetOrdersParams) {
  * Hook to fetch a single order by ID.
  * Automatically extracts data from ApiResponse.
  */
-export function useOrder(id: number) {
+export function useOrder(id: string) {
   return useQuery({
     queryKey: ['orders', id],
     queryFn: async () => {

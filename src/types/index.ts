@@ -9,14 +9,20 @@ export interface LoginResponse {
   expiresIn: number;
 }
 
+// ComboBox types
+export interface ComboBoxOption {
+  value: string;
+  label: string;
+}
+
 // Order types (renamed from Pedido)
 export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 
 export interface OrderItem {
-  id: number;
-  code: string;
-  orderId: number;
-  productId: number;
+  id: string;
+  code: number;
+  orderId: string;
+  productId: string;
   quantity: number;
   unitPrice: number;
   subtotal: number;
@@ -24,12 +30,13 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: number;
-  code: string;
+  id: string;
+  code: number;
   orderNumber: string;
   total: number;
   status: OrderStatus;
-  customerId: number;
+  customerId: string;
+  customerName?: string;
   items?: OrderItem[];
   createdAt: string;
   updatedAt?: string;
@@ -39,7 +46,7 @@ export interface Order {
 
 export interface CreateOrderRequest {
   orderNumber: string;
-  customerId: number;
+  customerId: string;
 }
 
 export interface UpdateOrderRequest {
@@ -60,8 +67,8 @@ export interface GetOrdersParams {
 
 // Product types
 export interface Product {
-  id: number;
-  code: string;
+  id: string;
+  code: number;
   name: string;
   description?: string;
   unitPrice: number;
@@ -124,6 +131,39 @@ export interface ApiErrorResponse {
 }
 
 export type ApiError = ApiErrorResponse;
+
+// Customer types
+export interface Customer {
+  id: string;
+  code: number;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  createdAt: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+  isDeleted: boolean;
+}
+
+export interface CreateCustomerRequest {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface UpdateCustomerRequest {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface GetCustomersParams {
+  page?: number;
+  pageSize?: number;
+}
 
 // Backward compatibility aliases
 export type EstadoPedido = OrderStatus;

@@ -2,28 +2,30 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DataTable } from '../components/DataTable';
 import { Sheet } from '../components/Sheet';
-import { ProductForm } from '../components/ProductForm';
+import { CustomerForm } from '../components/CustomerForm';
 import { DeleteConfirmationSheet } from '../components/DeleteConfirmationSheet';
-import { useProducts } from '../hooks/useProducts';
-import { useProductColumns } from '../hooks/useProductColumns';
-import { useDeleteProductMutation } from '../hooks/useProductMutations';
-import type { Product } from '../types';
+import { useCustomers } from '../hooks/useCustomers';
+import { useCustomerColumns } from '../hooks/useCustomerColumns';
+import { useDeleteCustomerMutation } from '../hooks/useCustomerMutations';
+import type { GetCustomersParams, Customer } from '../types';
 
-function ProductsListPage() {
+function CustomersListPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
 
-  const deleteProductMutation = useDeleteProductMutation();
-  const { data: response, isLoading, error } = useProducts({
+  const params: GetCustomersParams = {
     page: pageIndex + 1,
     pageSize,
-  });
-  const productColumns = useProductColumns((productId) => {
-    setProductToDelete(productId);
+  };
+
+  const deleteCustomerMutation = useDeleteCustomerMutation();
+  const { data: response, isLoading, error } = useCustomers(params);
+  const customerColumns = useCustomerColumns((customerId) => {
+    setCustomerToDelete(customerId);
     setDeleteConfirmationOpen(true);
   });
 
@@ -31,13 +33,13 @@ function ProductsListPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <p className="text-semantic-danger text-lg">
-          Error al cargar productos. Por favor intenta de nuevo.
+          Error al cargar clientes. Por favor intenta de nuevo.
         </p>
       </div>
     );
   }
 
-  const products = response?.data || [];
+  const customers = response?.data || [];
 
   return (
     <motion.div
@@ -56,7 +58,7 @@ function ProductsListPage() {
         >
           <div className="flex items-center gap-4 mb-6">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent">
-              Gestión de Productos
+              Gestión de Clientes
             </h1>
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-gold-primary to-transparent rounded-full" />
@@ -73,31 +75,31 @@ function ProductsListPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              setSelectedProduct(undefined);
+              setSelectedCustomer(undefined);
               setIsSheetOpen(true);
             }}
             className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
           >
-            + Crear Producto
+            + Crear Cliente
           </motion.button>
         </motion.div>
 
         {/* Table or empty state */}
-        {products.length > 0 ? (
+        {customers.length > 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
             <DataTable
-              columns={productColumns}
-              data={products}
+              columns={customerColumns}
+              data={customers}
               isLoading={isLoading}
               totalPages={response?.totalPages || 1}
               currentPage={pageIndex}
               onPageChange={setPageIndex}
-              onRowClick={(product) => {
-                setSelectedProduct(product);
+              onRowClick={(customer) => {
+                setSelectedCustomer(customer);
                 setIsSheetOpen(true);
               }}
             />
@@ -109,17 +111,17 @@ function ProductsListPage() {
             transition={{ delay: 0.15 }}
             className="text-center py-16 bg-surface-raised rounded-lg border border-border-default"
           >
-            <p className="text-text-secondary text-lg mb-6">No hay productos</p>
+            <p className="text-text-secondary text-lg mb-6">No hay clientes</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                setSelectedProduct(undefined);
+                setSelectedCustomer(undefined);
                 setIsSheetOpen(true);
               }}
               className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
             >
-              Crear el primer producto
+              Crear el primer cliente
             </motion.button>
           </motion.div>
         )}
@@ -129,15 +131,15 @@ function ProductsListPage() {
           isOpen={isSheetOpen}
           onClose={() => {
             setIsSheetOpen(false);
-            setSelectedProduct(undefined);
+            setSelectedCustomer(undefined);
           }}
-          title={selectedProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}
+          title={selectedCustomer ? 'Editar Cliente' : 'Crear Nuevo Cliente'}
         >
-          <ProductForm
-            product={selectedProduct}
+          <CustomerForm
+            customer={selectedCustomer}
             onSuccess={() => {
               setIsSheetOpen(false);
-              setSelectedProduct(undefined);
+              setSelectedCustomer(undefined);
             }}
           />
         </Sheet>
@@ -147,23 +149,23 @@ function ProductsListPage() {
           isOpen={deleteConfirmationOpen}
           onClose={() => {
             setDeleteConfirmationOpen(false);
-            setProductToDelete(null);
+            setCustomerToDelete(null);
           }}
           onConfirm={() => {
-            if (productToDelete) {
-              deleteProductMutation.mutate(productToDelete);
+            if (customerToDelete) {
+              deleteCustomerMutation.mutate(customerToDelete);
             }
           }}
           onSuccess={() => {
             setIsSheetOpen(false);
-            setSelectedProduct(undefined);
+            setSelectedCustomer(undefined);
           }}
-          itemName="este producto"
-          isLoading={deleteProductMutation.isPending}
+          itemName="este cliente"
+          isLoading={deleteCustomerMutation.isPending}
         />
       </div>
     </motion.div>
   );
 }
 
-export default ProductsListPage;
+export default CustomersListPage;

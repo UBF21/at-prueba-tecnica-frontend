@@ -27,7 +27,7 @@ export function useProducts(params?: GetProductsParams) {
  * Hook to fetch a single product by ID.
  * Automatically extracts data from ApiResponse.
  */
-export function useProduct(id: number) {
+export function useProduct(id: string) {
   return useQuery({
     queryKey: ['products', id],
     queryFn: async () => {

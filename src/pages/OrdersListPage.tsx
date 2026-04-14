@@ -1,56 +1,39 @@
-import { useRef, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { DataTable } from '../components/DataTable';
 import { Sheet } from '../components/Sheet';
 import { OrderForm } from '../components/OrderForm';
+import { DeleteConfirmationSheet } from '../components/DeleteConfirmationSheet';
 import { useOrders } from '../hooks/useOrders';
 import { useOrderColumns } from '../hooks/useOrderColumns';
-import { removeToken } from '../api/auth';
+import { useDeleteOrderMutation } from '../hooks/useOrderMutations';
 import type { GetOrdersParams, Order } from '../types';
 
 function OrdersListPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
-  const [params] = useState<GetOrdersParams>({
-    page: 1,
-    pageSize: 10,
-  });
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+  const pageSize = 10;
 
-  const { data: response, isLoading, error } = useOrders(params);
-  const orderColumns = useOrderColumns();
-
-  useEffect(() => {
-    // GSAP entrance animation
-    if (containerRef.current) {
-      gsap.from(containerRef.current, {
-        opacity: 0,
-        y: 30,
-        duration: 0.6,
-        ease: 'power2.out',
-      });
-    }
-  }, []);
-
-  const handleLogout = () => {
-    removeToken();
-    navigate('/login', { replace: true });
+  const params: GetOrdersParams = {
+    page: pageIndex + 1,
+    pageSize,
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <p className="text-white text-lg">Cargando órdenes...</p>
-      </div>
-    );
-  }
+  const deleteOrderMutation = useDeleteOrderMutation();
+
+  const { data: response, isLoading, error } = useOrders(params);
+  const orderColumns = useOrderColumns((orderId) => {
+    setOrderToDelete(orderId);
+    setDeleteConfirmationOpen(true);
+  });
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <p className="text-red-400 text-lg">
+      <div className="flex items-center justify-center py-20">
+        <p className="text-semantic-danger text-lg">
           Error al cargar órdenes. Por favor intenta de nuevo.
         </p>
       </div>
@@ -60,58 +43,91 @@ function OrdersListPage() {
   const orders = response?.data || [];
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen bg-slate-900 text-white p-8"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen bg-surface-base text-text-primary p-8"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Gestión de Órdenes</h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
+        {/* Header with decorative line */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent">
+              Gestión de Órdenes
+            </h1>
+          </div>
+          <div className="w-20 h-1 bg-gradient-to-r from-gold-primary to-transparent rounded-full" />
+        </motion.div>
 
-        <div className="mb-6">
-          <button
+        {/* Create button */}
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               setSelectedOrder(undefined);
               setIsSheetOpen(true);
             }}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
+            className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
           >
             + Crear Orden
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
+        {/* Table or empty state */}
         {orders.length > 0 ? (
-          <DataTable
-            columns={orderColumns}
-            data={orders}
-            pageSize={10}
-            onRowClick={(order) => {
-              setSelectedOrder(order);
-              setIsSheetOpen(true);
-            }}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <DataTable
+              columns={orderColumns}
+              data={orders}
+              isLoading={isLoading}
+              totalPages={response?.totalPages || 1}
+              currentPage={pageIndex}
+              onPageChange={setPageIndex}
+              onRowClick={(order) => {
+                setSelectedOrder(order);
+                setIsSheetOpen(true);
+              }}
+            />
+          </motion.div>
         ) : (
-          <div className="text-center py-12 bg-slate-800 rounded-lg">
-            <p className="text-slate-400 text-lg mb-4">No hay órdenes</p>
-            <button
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="text-center py-16 bg-surface-raised rounded-lg border border-border-default"
+          >
+            <p className="text-text-secondary text-lg mb-6">No hay órdenes</p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setSelectedOrder(undefined);
                 setIsSheetOpen(true);
               }}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
+              className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
             >
               Crear la primera orden
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
 
+        {/* Sheet drawer */}
         <Sheet
           isOpen={isSheetOpen}
           onClose={() => {
@@ -128,8 +144,28 @@ function OrdersListPage() {
             }}
           />
         </Sheet>
+
+        {/* Delete Confirmation Dialog */}
+        <DeleteConfirmationSheet
+          isOpen={deleteConfirmationOpen}
+          onClose={() => {
+            setDeleteConfirmationOpen(false);
+            setOrderToDelete(null);
+          }}
+          onConfirm={() => {
+            if (orderToDelete) {
+              deleteOrderMutation.mutate(orderToDelete);
+            }
+          }}
+          onSuccess={() => {
+            setIsSheetOpen(false);
+            setSelectedOrder(undefined);
+          }}
+          itemName="esta orden"
+          isLoading={deleteOrderMutation.isPending}
+        />
       </div>
-    </div>
+    </motion.div>
   );
 }
 

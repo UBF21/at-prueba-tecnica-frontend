@@ -29,7 +29,7 @@ export async function getProducts(
  * Fetch a single product by ID.
  * Returns ApiResponse with product data.
  */
-export async function getProductById(id: number): Promise<ApiResponse<Product>> {
+export async function getProductById(id: string): Promise<ApiResponse<Product>> {
   return apiFetch<ApiResponse<Product>>(`/api/products/${id}`);
 }
 
@@ -51,7 +51,7 @@ export async function createProduct(
  * Returns ApiResponse with updated product data.
  */
 export async function updateProduct(
-  id: number,
+  id: string,
   data: UpdateProductRequest
 ): Promise<ApiResponse<Product>> {
   return apiFetch<ApiResponse<Product>>(`/api/products/${id}`, {
@@ -65,7 +65,7 @@ export async function updateProduct(
  * Returns ApiResponse with boolean result.
  */
 export async function deleteProduct(
-  id: number
+  id: string
 ): Promise<ApiResponse<boolean>> {
   return apiFetch<ApiResponse<boolean>>(`/api/products/${id}`, {
     method: 'DELETE',

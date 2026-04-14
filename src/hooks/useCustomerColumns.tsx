@@ -1,18 +1,25 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useDeleteProductMutation } from './useProductMutations';
+import { useDeleteCustomerMutation } from './useCustomerMutations';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { Product } from '../types';
+import type { Customer } from '../types';
 
 /**
- * Custom hook that generates dynamic columns for Products table
+ * Custom hook that generates dynamic columns for Customers table
  * with sorting, custom rendering, and action buttons
  */
-export function useProductColumns(onDeleteClick?: (productId: string) => void) {
-  const deleteProductMutation = useDeleteProductMutation();
+export function useCustomerColumns(onDeleteClick?: (customerId: string) => void) {
+  const deleteCustomerMutation = useDeleteCustomerMutation();
 
-  const columns: ColumnDef<Product>[] = useMemo(
+  const columns: ColumnDef<Customer>[] = useMemo(
     () => [
+      {
+        accessorKey: 'code',
+        header: 'Código',
+        cell: (info) => (
+          <span className="font-semibold text-gold-primary">#{info.getValue() as number}</span>
+        ),
+      },
       {
         accessorKey: 'name',
         header: 'Nombre',
@@ -21,44 +28,32 @@ export function useProductColumns(onDeleteClick?: (productId: string) => void) {
         ),
       },
       {
-        accessorKey: 'description',
-        header: 'Descripción',
+        accessorKey: 'email',
+        header: 'Email',
         cell: (info) => (
-          <span className="text-sm text-text-secondary max-w-xs truncate">
-            {(info.getValue() as string) || 'N/A'}
-          </span>
+          <span className="text-sm text-text-secondary">{info.getValue() as string}</span>
         ),
       },
       {
-        accessorKey: 'unitPrice',
-        header: 'Precio',
-        cell: (info) => (
-          <span className="font-semibold text-gold-primary">
-            ${((info.getValue() as number) || 0).toFixed(2)}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'stock',
-        header: 'Stock',
+        accessorKey: 'phone',
+        header: 'Teléfono',
         cell: (info) => {
-          const stock = info.getValue() as number;
-          const isInStock = stock > 0;
-          const bgColor = isInStock
-            ? 'rgba(34, 197, 94, 0.15)'
-            : 'rgba(239, 68, 68, 0.15)';
-          const borderColor = isInStock
-            ? 'border-semantic-success/50'
-            : 'border-semantic-danger/50';
-          const textColor = isInStock
-            ? 'text-semantic-success'
-            : 'text-semantic-danger';
+          const phone = info.getValue() as string | undefined;
           return (
-            <span
-              className={`px-3 py-1 rounded-lg text-xs font-semibold border ${textColor} ${borderColor}`}
-              style={{ backgroundColor: bgColor }}
-            >
-              {stock} unidades
+            <span className="text-sm text-text-secondary">
+              {phone || '-'}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'address',
+        header: 'Dirección',
+        cell: (info) => {
+          const address = info.getValue() as string | undefined;
+          return (
+            <span className="text-sm text-text-secondary truncate max-w-xs">
+              {address || '-'}
             </span>
           );
         },
@@ -76,15 +71,15 @@ export function useProductColumns(onDeleteClick?: (productId: string) => void) {
         id: 'actions',
         header: 'Acciones',
         cell: (info) => {
-          const product = info.row.original;
+          const customer = info.row.original;
           return (
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => onDeleteClick?.(product.id)}
-              disabled={deleteProductMutation.isPending}
+              onClick={() => onDeleteClick?.(customer.id)}
+              disabled={deleteCustomerMutation.isPending}
               className="p-2 text-semantic-danger/70 hover:text-semantic-danger hover:bg-semantic-danger/10 rounded transition disabled:cursor-not-allowed disabled:opacity-50"
-              title="Eliminar producto"
+              title="Eliminar cliente"
             >
               <svg
                 width="18"
@@ -106,7 +101,7 @@ export function useProductColumns(onDeleteClick?: (productId: string) => void) {
         },
       },
     ],
-    [deleteProductMutation]
+    [deleteCustomerMutation]
   );
 
   return columns;

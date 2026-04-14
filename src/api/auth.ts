@@ -54,3 +54,23 @@ export function isAuthenticated(): boolean {
   const token = getToken();
   return !!(token && !isTokenExpired(token));
 }
+
+export function getCurrentUser(): { email: string; role: string } | null {
+  const token = getToken();
+  if (!token || isTokenExpired(token)) {
+    return null;
+  }
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    return {
+      email: payload.sub || payload.email || 'Usuario',
+      role: payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'User',
+    };
+  } catch {
+    return null;
+  }
+}
