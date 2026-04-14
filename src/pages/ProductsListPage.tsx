@@ -1,22 +1,20 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { DataTable } from '../components/DataTable';
-import { useOrders } from '../hooks/useOrders';
-import { useOrderColumns } from '../hooks/useOrderColumns';
+import { useProducts } from '../hooks/useProducts';
+import { useProductColumns } from '../hooks/useProductColumns';
 import { removeToken } from '../api/auth';
-import type { GetOrdersParams } from '../types';
 
-function OrdersListPage() {
+function ProductsListPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [params, setParams] = useState<GetOrdersParams>({
+
+  const { data: response, isLoading, error } = useProducts({
     page: 1,
     pageSize: 10,
   });
-
-  const { data: response, isLoading, error } = useOrders(params);
-  const orderColumns = useOrderColumns();
+  const productColumns = useProductColumns();
 
   useEffect(() => {
     // GSAP entrance animation
@@ -38,7 +36,7 @@ function OrdersListPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <p className="text-white text-lg">Cargando órdenes...</p>
+        <p className="text-white text-lg">Cargando productos...</p>
       </div>
     );
   }
@@ -47,13 +45,13 @@ function OrdersListPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <p className="text-red-400 text-lg">
-          Error al cargar órdenes. Por favor intenta de nuevo.
+          Error al cargar productos. Por favor intenta de nuevo.
         </p>
       </div>
     );
   }
 
-  const orders = response?.data || [];
+  const products = response?.data || [];
 
   return (
     <div
@@ -62,7 +60,7 @@ function OrdersListPage() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Gestión de Órdenes</h1>
+          <h1 className="text-4xl font-bold">Gestión de Productos</h1>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition"
@@ -73,28 +71,30 @@ function OrdersListPage() {
 
         <div className="mb-6">
           <button
-            onClick={() => navigate('/orders/nuevo')}
+            onClick={() => navigate('/products/nuevo')}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
           >
-            + Crear Orden
+            + Crear Producto
           </button>
         </div>
 
-        {orders.length > 0 ? (
+        {products.length > 0 ? (
           <DataTable
-            columns={orderColumns}
-            data={orders}
+            columns={productColumns}
+            data={products}
             pageSize={10}
-            onRowClick={(order) => navigate(`/orders/${order.id}/editar`)}
+            onRowClick={(product) =>
+              navigate(`/products/${product.id}/editar`)
+            }
           />
         ) : (
           <div className="text-center py-12 bg-slate-800 rounded-lg">
-            <p className="text-slate-400 text-lg mb-4">No hay órdenes</p>
+            <p className="text-slate-400 text-lg mb-4">No hay productos</p>
             <button
-              onClick={() => navigate('/orders/nuevo')}
+              onClick={() => navigate('/products/nuevo')}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
             >
-              Crear la primera orden
+              Crear el primer producto
             </button>
           </div>
         )}
@@ -103,4 +103,4 @@ function OrdersListPage() {
   );
 }
 
-export default OrdersListPage;
+export default ProductsListPage;
