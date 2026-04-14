@@ -39,7 +39,7 @@ export function useUpdateProductMutation() {
       id: number;
       data: UpdateProductRequest;
     }) => updateProduct(id, data),
-    onSuccess: (response, variables) => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },

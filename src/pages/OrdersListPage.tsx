@@ -2,15 +2,19 @@ import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { DataTable } from '../components/DataTable';
+import { Sheet } from '../components/Sheet';
+import { OrderForm } from '../components/OrderForm';
 import { useOrders } from '../hooks/useOrders';
 import { useOrderColumns } from '../hooks/useOrderColumns';
 import { removeToken } from '../api/auth';
-import type { GetOrdersParams } from '../types';
+import type { GetOrdersParams, Order } from '../types';
 
 function OrdersListPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [params, setParams] = useState<GetOrdersParams>({
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
+  const [params] = useState<GetOrdersParams>({
     page: 1,
     pageSize: 10,
   });
@@ -73,7 +77,10 @@ function OrdersListPage() {
 
         <div className="mb-6">
           <button
-            onClick={() => navigate('/orders/nuevo')}
+            onClick={() => {
+              setSelectedOrder(undefined);
+              setIsSheetOpen(true);
+            }}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
           >
             + Crear Orden
@@ -85,19 +92,42 @@ function OrdersListPage() {
             columns={orderColumns}
             data={orders}
             pageSize={10}
-            onRowClick={(order) => navigate(`/orders/${order.id}/editar`)}
+            onRowClick={(order) => {
+              setSelectedOrder(order);
+              setIsSheetOpen(true);
+            }}
           />
         ) : (
           <div className="text-center py-12 bg-slate-800 rounded-lg">
             <p className="text-slate-400 text-lg mb-4">No hay órdenes</p>
             <button
-              onClick={() => navigate('/orders/nuevo')}
+              onClick={() => {
+                setSelectedOrder(undefined);
+                setIsSheetOpen(true);
+              }}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
             >
               Crear la primera orden
             </button>
           </div>
         )}
+
+        <Sheet
+          isOpen={isSheetOpen}
+          onClose={() => {
+            setIsSheetOpen(false);
+            setSelectedOrder(undefined);
+          }}
+          title={selectedOrder ? 'Editar Orden' : 'Crear Nueva Orden'}
+        >
+          <OrderForm
+            order={selectedOrder}
+            onSuccess={() => {
+              setIsSheetOpen(false);
+              setSelectedOrder(undefined);
+            }}
+          />
+        </Sheet>
       </div>
     </div>
   );

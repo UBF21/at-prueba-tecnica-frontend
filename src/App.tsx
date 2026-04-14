@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { PrivateRoute } from './components/PrivateRoute';
 import LoginPage from './pages/LoginPage';
-import PedidosListPage from './pages/PedidosListPage';
-import CreatePedidoPage from './pages/CreatePedidoPage';
-import EditPedidoPage from './pages/EditPedidoPage';
+import OrdersListPage from './pages/OrdersListPage';
+import ProductsListPage from './pages/ProductsListPage';
 
 function App() {
   return (
@@ -11,31 +10,23 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/pedidos"
+          path="/orders"
           element={
             <PrivateRoute>
-              <PedidosListPage />
+              <OrdersListPage />
             </PrivateRoute>
           }
         />
         <Route
-          path="/pedidos/nuevo"
+          path="/products"
           element={
             <PrivateRoute>
-              <CreatePedidoPage />
+              <ProductsListPage />
             </PrivateRoute>
           }
         />
-        <Route
-          path="/pedidos/:id/editar"
-          element={
-            <PrivateRoute>
-              <EditPedidoPage />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/" element={<Navigate to="/pedidos" replace />} />
-        <Route path="*" element={<Navigate to="/pedidos" replace />} />
+        <Route path="/" element={<Navigate to="/orders" replace />} />
+        <Route path="*" element={<Navigate to="/orders" replace />} />
       </Routes>
     </Router>
   );

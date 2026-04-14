@@ -41,7 +41,7 @@ export function useUpdateOrderMutation() {
       id: number;
       data: UpdateOrderRequest;
     }) => updateOrder(id, data),
-    onSuccess: (response, variables) => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
@@ -78,7 +78,7 @@ export function useAddOrderItemMutation() {
       orderId: number;
       request: AddOrderItemRequest;
     }) => addOrderItem(orderId, request),
-    onSuccess: (response, variables) => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders', variables.orderId] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });

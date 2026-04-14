@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDeleteProductMutation } from './useProductMutations';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Product } from '../types';
@@ -9,7 +8,6 @@ import type { Product } from '../types';
  * with sorting, custom rendering, and action buttons
  */
 export function useProductColumns() {
-  const navigate = useNavigate();
   const deleteProductMutation = useDeleteProductMutation();
 
   const columns: ColumnDef<Product>[] = useMemo(
@@ -72,34 +70,26 @@ export function useProductColumns() {
         cell: (info) => {
           const product = info.row.original;
           return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate(`/products/${product.id}/editar`)}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium transition"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => {
-                  if (
-                    confirm(
-                      '¿Estás seguro de que deseas eliminar este producto?'
-                    )
-                  ) {
-                    deleteProductMutation.mutate(product.id);
-                  }
-                }}
-                disabled={deleteProductMutation.isPending}
-                className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded text-xs font-medium transition disabled:cursor-not-allowed"
-              >
-                {deleteProductMutation.isPending ? 'Eliminando...' : 'Eliminar'}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                if (
+                  confirm(
+                    '¿Estás seguro de que deseas eliminar este producto?'
+                  )
+                ) {
+                  deleteProductMutation.mutate(product.id);
+                }
+              }}
+              disabled={deleteProductMutation.isPending}
+              className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded text-xs font-medium transition disabled:cursor-not-allowed"
+            >
+              {deleteProductMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            </button>
           );
         },
       },
     ],
-    [navigate, deleteProductMutation]
+    [deleteProductMutation]
   );
 
   return columns;

@@ -3,7 +3,7 @@ import {
   getOrders,
   getOrderById,
 } from '../api/orders';
-import type { GetOrdersParams, Order, PaginatedResponse } from '../types';
+import type { GetOrdersParams } from '../types';
 
 /**
  * Hook to fetch orders with pagination and optional status filtering.

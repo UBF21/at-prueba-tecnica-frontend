@@ -1,14 +1,19 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { DataTable } from '../components/DataTable';
+import { Sheet } from '../components/Sheet';
+import { ProductForm } from '../components/ProductForm';
 import { useProducts } from '../hooks/useProducts';
 import { useProductColumns } from '../hooks/useProductColumns';
 import { removeToken } from '../api/auth';
+import type { Product } from '../types';
 
 function ProductsListPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
 
   const { data: response, isLoading, error } = useProducts({
     page: 1,
@@ -71,7 +76,10 @@ function ProductsListPage() {
 
         <div className="mb-6">
           <button
-            onClick={() => navigate('/products/nuevo')}
+            onClick={() => {
+              setSelectedProduct(undefined);
+              setIsSheetOpen(true);
+            }}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
           >
             + Crear Producto
@@ -83,21 +91,42 @@ function ProductsListPage() {
             columns={productColumns}
             data={products}
             pageSize={10}
-            onRowClick={(product) =>
-              navigate(`/products/${product.id}/editar`)
-            }
+            onRowClick={(product) => {
+              setSelectedProduct(product);
+              setIsSheetOpen(true);
+            }}
           />
         ) : (
           <div className="text-center py-12 bg-slate-800 rounded-lg">
             <p className="text-slate-400 text-lg mb-4">No hay productos</p>
             <button
-              onClick={() => navigate('/products/nuevo')}
+              onClick={() => {
+                setSelectedProduct(undefined);
+                setIsSheetOpen(true);
+              }}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition font-semibold"
             >
               Crear el primer producto
             </button>
           </div>
         )}
+
+        <Sheet
+          isOpen={isSheetOpen}
+          onClose={() => {
+            setIsSheetOpen(false);
+            setSelectedProduct(undefined);
+          }}
+          title={selectedProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}
+        >
+          <ProductForm
+            product={selectedProduct}
+            onSuccess={() => {
+              setIsSheetOpen(false);
+              setSelectedProduct(undefined);
+            }}
+          />
+        </Sheet>
       </div>
     </div>
   );

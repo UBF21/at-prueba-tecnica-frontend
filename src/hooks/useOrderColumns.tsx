@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDeleteOrderMutation } from './useOrderMutations';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Order, OrderStatus } from '../types';
@@ -25,7 +24,6 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
  * with sorting, custom rendering, and action buttons
  */
 export function useOrderColumns() {
-  const navigate = useNavigate();
   const deleteOrderMutation = useDeleteOrderMutation();
 
   const columns: ColumnDef<Order>[] = useMemo(
@@ -74,7 +72,7 @@ export function useOrderColumns() {
       {
         accessorKey: 'customerId',
         header: 'ID Cliente',
-        cell: (info) => <span className="text-slate-400">#{info.getValue()}</span>,
+        cell: (info) => <span className="text-slate-400">#{info.getValue() as number}</span>,
       },
       {
         id: 'actions',
@@ -82,34 +80,26 @@ export function useOrderColumns() {
         cell: (info) => {
           const order = info.row.original;
           return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate(`/orders/${order.id}/editar`)}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium transition"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => {
-                  if (
-                    confirm(
-                      '¿Estás seguro de que deseas eliminar esta orden?'
-                    )
-                  ) {
-                    deleteOrderMutation.mutate(order.id);
-                  }
-                }}
-                disabled={deleteOrderMutation.isPending}
-                className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded text-xs font-medium transition disabled:cursor-not-allowed"
-              >
-                {deleteOrderMutation.isPending ? 'Eliminando...' : 'Eliminar'}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                if (
+                  confirm(
+                    '¿Estás seguro de que deseas eliminar esta orden?'
+                  )
+                ) {
+                  deleteOrderMutation.mutate(order.id);
+                }
+              }}
+              disabled={deleteOrderMutation.isPending}
+              className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded text-xs font-medium transition disabled:cursor-not-allowed"
+            >
+              {deleteOrderMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            </button>
           );
         },
       },
     ],
-    [navigate, deleteOrderMutation]
+    [deleteOrderMutation]
   );
 
   return columns;
