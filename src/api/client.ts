@@ -1,6 +1,6 @@
 import type { ApiError } from '../types';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5001';
 
 export async function apiFetch<T>(
   url: string,
