@@ -70,7 +70,7 @@ function LoginPage() {
             className="text-center mb-8"
           >
             <h1 className="text-3xl font-bold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent mb-3">
-              Reto Pedidos
+              AT
             </h1>
             <div className="w-10 h-[2px] bg-gold-primary mx-auto" />
           </motion.div>

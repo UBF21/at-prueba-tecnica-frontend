@@ -75,8 +75,8 @@ export function Sidebar() {
                   </svg>
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="font-bold text-text-primary text-sm">Reto Pedidos</span>
-                  <span className="text-xs text-gold-primary font-medium">Gestión Inteligente</span>
+                  <span className="font-bold text-text-primary text-sm">AT</span>
+                  <span className="text-xs text-gold-primary font-medium">Technical Test</span>
                 </div>
               </motion.div>
             ) : (
