@@ -69,7 +69,7 @@ function CustomersListPage() {
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-8"
+          className="mb-8 flex justify-between items-center"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -78,7 +78,7 @@ function CustomersListPage() {
               setSelectedCustomer(undefined);
               setIsSheetOpen(true);
             }}
-            className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
+            className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
           >
             + Crear Cliente
           </motion.button>
