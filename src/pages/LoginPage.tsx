@@ -29,15 +29,27 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-base overflow-hidden">
-      {/* Radial gradient halo background */}
+    <div className="min-h-screen flex items-center justify-center overflow-hidden relative">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0F0F1A] via-[#1A1530] to-[#0F0F1A]" />
+
+      {/* Multiple radial gradient halos for depth */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute w-96 h-96 rounded-full opacity-20"
+          className="absolute w-96 h-96 rounded-full opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(232, 197, 71, 0.5) 0%, transparent 70%)',
             top: '10%',
             right: '10%',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          className="absolute w-72 h-72 rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, transparent 70%)',
+            bottom: '20%',
+            left: '5%',
             filter: 'blur(60px)',
           }}
         />

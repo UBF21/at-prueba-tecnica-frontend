@@ -67,26 +67,30 @@ export function Sidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
-                className="flex items-center gap-3"
+                className="flex items-center gap-3 flex-1"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-bright rounded-lg flex items-center justify-center font-bold text-surface-base text-lg">
-                  ✦
+                <div className="w-10 h-10 bg-gradient-to-br from-gold-primary via-gold-bright to-gold-primary rounded-lg flex items-center justify-center font-bold text-surface-base flex-shrink-0 shadow-lg">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-surface-base">
+                    <path d="M12 2L15.09 10.26H24L17.55 15.74L20.09 24L12 19.26L3.91 24L6.45 15.74L0 10.26H8.91L12 2Z"/>
+                  </svg>
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-bold text-text-primary text-sm">AT</span>
-                  <span className="text-xs text-text-secondary">Technical Test</span>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-bold text-text-primary text-sm">Reto Pedidos</span>
+                  <span className="text-xs text-gold-primary font-medium">Gestión Inteligente</span>
                 </div>
               </motion.div>
             ) : (
               <motion.div
                 key="collapsed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
-                className="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-bright rounded-lg flex items-center justify-center font-bold text-surface-base text-lg mx-auto"
+                className="w-10 h-10 bg-gradient-to-br from-gold-primary via-gold-bright to-gold-primary rounded-lg flex items-center justify-center font-bold text-surface-base mx-auto flex-shrink-0 shadow-lg"
               >
-                ✦
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-surface-base">
+                  <path d="M12 2L15.09 10.26H24L17.55 15.74L20.09 24L12 19.26L3.91 24L6.45 15.74L0 10.26H8.91L12 2Z"/>
+                </svg>
               </motion.div>
             )}
           </AnimatePresence>
