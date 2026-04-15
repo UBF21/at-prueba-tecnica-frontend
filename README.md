@@ -412,6 +412,96 @@ npm run lint     # Verificar ESLint
 
 ---
 
+## 🚀 Mejoras Futuras
+
+### Búsqueda y Filtros Avanzados
+
+**1. Select con Búsqueda Conectada a API**
+- Reemplazar dropdown estático por autocomplete con búsqueda en tiempo real
+- Integrar API de búsqueda: `GET /api/customers?search=query` 
+- Debounce de 300ms para evitar exceso de requests
+- Mostrar spinner mientras busca
+- Caché local de resultados recientes
+
+**2. Search en Tablas Conectada a API**
+- Campo de búsqueda global en DataTable que consulte la API
+- Reutilizar paginación existente: `GET /api/orders?search=term&page=1&pageSize=10`
+- Mantener estado de búsqueda sincronizado con URL (query params)
+- Limpiar búsqueda al cambiar de página
+- Mostrar número total de resultados encontrados
+
+**3. Filtros Avanzados por Columna**
+- Dropdown con opciones de filtro en headers de tabla (status, date range, etc.)
+- Múltiples filtros simultáneos con operador AND
+- API: `GET /api/orders?status=Pending&dateFrom=2026-01-01&dateTo=2026-12-31`
+- Guardar filtros activos en localStorage para persistencia
+- Botón "Limpiar filtros" para reset
+
+### Validación en Tiempo Real
+
+**4. Email Validation con API**
+- Endpoint separado: `POST /api/validate/email?email=user@example.com`
+- Validar disponibilidad de email mientras escribe (con debounce 500ms)
+- Mostrar checkmark verde si es válido, X roja si existe
+- Deshabilitar submit si email no está disponible
+- Integrar en CustomerForm y OrderForm
+
+**5. Validación de Campos Duplicados**
+- OrderNumber: verificar unicidad en tiempo real
+- Endpoint: `POST /api/validate/order-number?orderNumber=ORD-001`
+- Mostrar error inmediato si ya existe
+- Permite mejor UX sin esperar al submit
+
+### Stock y Notificaciones
+
+**6. Notificaciones de Stock Bajo**
+- Toast notifications cuando producto stock < 10 unidades
+- Badge rojo en tabla: "⚠ Stock bajo"
+- Endpoint: `GET /api/products/low-stock` (cachear cada 5 min)
+- Color diferenciado en tabla: fondo amarillo/naranja para stock bajo
+- Al crear orden, advertencia si stock insuficiente
+
+**7. Alertas en Tiempo Real**
+- WebSocket o Server-Sent Events (SSE) para cambios en stock
+- Notificación push cuando product stock llega a cero
+- Actualización automática de tablas sin F5
+- Toast toast transient: "Orden XYZ entregada" (auto-dismiss en 5s)
+
+### UX/UI Avanzadas
+
+**8. Bulk Actions en Tablas**
+- Checkbox en cada fila para selección múltiple
+- Botones en header: "Cambiar estado (5 seleccionados)" 
+- Confirmar antes de ejecutar bulk action
+- Deshacer (undo) con debounce de 3 segundos
+
+**9. Exportar Datos**
+- Botón "Descargar CSV" en cada página
+- Endpoint: `GET /api/orders/export?format=csv`
+- Incluir filtros/búsqueda activos en export
+- Mostrar progreso de descarga
+
+**10. Historial y Auditoría**
+- Timeline de cambios: "Cliente X editado a las 14:30 por admin"
+- Endpoint: `GET /api/audit-logs?entityId=order-123&entityType=Order`
+- Botón "Ver historial" en sheet drawer
+- Rollback de cambios: restaurar a versión anterior
+
+### Performance
+
+**11. Infinite Scroll (Virtualization)**
+- Reemplazar paginación por infinite scroll en tablas grandes
+- Usar `react-window` para virtualization
+- Cargar 50 items por scroll, mantener 100 en DOM
+- Reducir bundle size de 591KB a ~450KB
+
+**12. Prefetch de Datos**
+- Al abrir sheet de crear orden, prefetch de customers
+- Caché warming: traer primeros 50 clientes al montar página
+- Optimistic updates: mostrar nuevo cliente antes de confirmación
+
+---
+
 ## 📊 Estructura de Tipos
 
 ```typescript
