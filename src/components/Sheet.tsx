@@ -42,7 +42,10 @@ export function Sheet({ isOpen, onClose, title, children }: SheetProps) {
           >
             {/* Header */}
             <div className="border-b border-border-default px-6 py-5 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
+              <div>
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent">{title}</h2>
+                <div className="w-8 h-0.5 bg-gradient-to-r from-gold-primary to-transparent rounded-full mt-1" />
+              </div>
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}

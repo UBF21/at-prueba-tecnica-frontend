@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Package } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import { Sheet } from '../components/Sheet';
 import { ProductForm } from '../components/ProductForm';
@@ -58,6 +59,11 @@ function ProductsListPage() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent">
               Gestión de Productos
             </h1>
+            {response?.total !== undefined && (
+              <span className="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-dim/40 text-gold-primary text-sm font-semibold">
+                {response.total} {response.total === 1 ? 'producto' : 'productos'}
+              </span>
+            )}
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-gold-primary to-transparent rounded-full" />
         </motion.div>
@@ -107,9 +113,17 @@ function ProductsListPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className="text-center py-16 bg-surface-raised rounded-lg border border-border-default"
+            className="text-center py-20 bg-surface-raised rounded-lg border border-border-default"
           >
-            <p className="text-text-secondary text-lg mb-6">No hay productos</p>
+            <div className="flex flex-col items-center gap-4 mb-8">
+              <div className="p-5 rounded-full bg-gold-primary/10 border border-gold-dim/30">
+                <Package size={36} className="text-gold-primary opacity-60" />
+              </div>
+              <div>
+                <p className="text-text-primary font-semibold text-lg">Sin productos todavía</p>
+                <p className="text-text-muted text-sm mt-1">Crea tu primer producto para incluirlo en las órdenes</p>
+              </div>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

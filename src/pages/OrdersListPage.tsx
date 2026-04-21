@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from '../components/DataTable';
 import { Sheet } from '../components/Sheet';
 import { OrderForm } from '../components/OrderForm';
@@ -7,9 +10,11 @@ import { DeleteConfirmationSheet } from '../components/DeleteConfirmationSheet';
 import { useOrders } from '../hooks/useOrders';
 import { useOrderColumns } from '../hooks/useOrderColumns';
 import { useDeleteOrderMutation } from '../hooks/useOrderMutations';
+import { useCustomers } from '../hooks/useCustomers';
 import type { GetOrdersParams, Order } from '../types';
 
 function OrdersListPage() {
+  const navigate = useNavigate();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
@@ -24,7 +29,25 @@ function OrdersListPage() {
 
   const deleteOrderMutation = useDeleteOrderMutation();
 
+  const { data: customersResponse } = useCustomers({ page: 1, pageSize: 1 });
+  const hasCustomers = (customersResponse?.data?.length ?? 0) > 0;
+
   const { data: response, isLoading, error } = useOrders(params);
+
+  function handleOpenCreateOrder() {
+    if (!hasCustomers) {
+      toast.warning('No hay clientes registrados', {
+        description: 'Primero debes crear al menos un cliente antes de poder crear una orden.',
+        action: {
+          label: 'Ir a Clientes',
+          onClick: () => navigate('/customers'),
+        },
+      });
+      return;
+    }
+    setSelectedOrder(undefined);
+    setIsSheetOpen(true);
+  }
   const orderColumns = useOrderColumns((orderId) => {
     setOrderToDelete(orderId);
     setDeleteConfirmationOpen(true);
@@ -61,6 +84,11 @@ function OrdersListPage() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-primary to-gold-bright bg-clip-text text-transparent">
               Gestión de Órdenes
             </h1>
+            {response?.total !== undefined && (
+              <span className="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-dim/40 text-gold-primary text-sm font-semibold">
+                {response.total} {response.total === 1 ? 'orden' : 'órdenes'}
+              </span>
+            )}
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-gold-primary to-transparent rounded-full" />
         </motion.div>
@@ -75,10 +103,7 @@ function OrdersListPage() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setSelectedOrder(undefined);
-              setIsSheetOpen(true);
-            }}
+            onClick={handleOpenCreateOrder}
             className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
           >
             + Crear Orden
@@ -110,16 +135,21 @@ function OrdersListPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className="text-center py-16 bg-surface-raised rounded-lg border border-border-default"
+            className="text-center py-20 bg-surface-raised rounded-lg border border-border-default"
           >
-            <p className="text-text-secondary text-lg mb-6">No hay órdenes</p>
+            <div className="flex flex-col items-center gap-4 mb-8">
+              <div className="p-5 rounded-full bg-gold-primary/10 border border-gold-dim/30">
+                <ShoppingCart size={36} className="text-gold-primary opacity-60" />
+              </div>
+              <div>
+                <p className="text-text-primary font-semibold text-lg">Sin órdenes todavía</p>
+                <p className="text-text-muted text-sm mt-1">Crea tu primera orden para comenzar</p>
+              </div>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setSelectedOrder(undefined);
-                setIsSheetOpen(true);
-              }}
+              onClick={handleOpenCreateOrder}
               className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
             >
               Crear la primera orden

@@ -157,7 +157,7 @@ export function Sidebar() {
                   onClick={() => setIsMobileOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group relative ${
                     active
-                      ? 'bg-gold-primary/20 border border-gold-dim text-gold-primary shadow-lg'
+                      ? 'bg-gold-primary/20 border border-gold-dim text-gold-primary shadow-lg border-l-2 border-l-gold-primary pl-[14px]'
                       : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary'
                   }`}
                 >

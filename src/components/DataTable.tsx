@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronUp, ChevronDown, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsLeft, ChevronsRight, Inbox } from 'lucide-react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -190,10 +190,12 @@ export function DataTable<TData>({
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-3"
                     >
-                      <div className="text-4xl opacity-20">📭</div>
-                      <p className="text-sm">No hay datos disponibles</p>
+                      <div className="p-4 rounded-full bg-gold-primary/10 border border-gold-dim/30">
+                        <Inbox size={32} className="text-gold-primary opacity-60" />
+                      </div>
+                      <p className="text-sm text-text-muted">No hay datos disponibles</p>
                     </motion.div>
                   </td>
                 </tr>
