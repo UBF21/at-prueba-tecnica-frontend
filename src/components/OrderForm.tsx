@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Info } from 'lucide-react';
 import { useValiValid } from 'vali-valid-react';
 import { rule } from 'vali-valid';
 import { useCreateOrderMutation, useUpdateOrderMutation } from '../hooks/useOrderMutations';
@@ -143,8 +144,16 @@ export function OrderForm({ order, onSuccess }: OrderFormProps) {
           animate="visible"
           variants={fieldVariants}
         >
-          <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+          <label className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
             Estado
+            <div className="relative group">
+              <Info size={13} className="text-text-muted cursor-help" />
+              <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover:block z-10 w-56 bg-surface-overlay border border-border-default rounded-lg p-2.5 text-xs text-text-secondary shadow-lg normal-case tracking-normal">
+                <p className="font-semibold text-text-primary mb-1">Orden de transiciones:</p>
+                <p>Pendiente → Procesando → Enviado → Entregado</p>
+                <p className="mt-1 text-text-muted">Cualquier estado → Cancelado</p>
+              </div>
+            </div>
           </label>
           <select
             value={form.status}
