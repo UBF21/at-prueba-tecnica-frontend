@@ -7,6 +7,7 @@ import {
   addOrderItem,
 } from '../api/orders';
 import type {
+  ApiError,
   CreateOrderRequest,
   UpdateOrderRequest,
   AddOrderItemRequest,
@@ -25,8 +26,8 @@ export function useCreateOrderMutation() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success('Orden creada exitosamente');
     },
-    onError: () => {
-      toast.error('Error al crear la orden');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al crear la orden');
     },
   });
 }
@@ -51,8 +52,8 @@ export function useUpdateOrderMutation() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success('Orden actualizada exitosamente');
     },
-    onError: () => {
-      toast.error('Error al actualizar la orden');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al actualizar la orden');
     },
   });
 }
@@ -70,8 +71,8 @@ export function useDeleteOrderMutation() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success('Orden eliminada exitosamente');
     },
-    onError: () => {
-      toast.error('Error al eliminar la orden');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al eliminar la orden');
     },
   });
 }

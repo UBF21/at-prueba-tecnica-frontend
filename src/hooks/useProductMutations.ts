@@ -6,14 +6,11 @@ import {
   deleteProduct,
 } from '../api/products';
 import type {
+  ApiError,
   CreateProductRequest,
   UpdateProductRequest,
 } from '../types';
 
-/**
- * Hook to create a new product.
- * Automatically invalidates products list on success.
- */
 export function useCreateProductMutation() {
   const queryClient = useQueryClient();
 
@@ -23,16 +20,12 @@ export function useCreateProductMutation() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto creado exitosamente');
     },
-    onError: () => {
-      toast.error('Error al crear el producto');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al crear el producto');
     },
   });
 }
 
-/**
- * Hook to update a product.
- * Automatically invalidates products list and specific product on success.
- */
 export function useUpdateProductMutation() {
   const queryClient = useQueryClient();
 
@@ -49,16 +42,12 @@ export function useUpdateProductMutation() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto actualizado exitosamente');
     },
-    onError: () => {
-      toast.error('Error al actualizar el producto');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al actualizar el producto');
     },
   });
 }
 
-/**
- * Hook to delete a product.
- * Automatically invalidates products list on success.
- */
 export function useDeleteProductMutation() {
   const queryClient = useQueryClient();
 
@@ -68,8 +57,8 @@ export function useDeleteProductMutation() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto eliminado exitosamente');
     },
-    onError: () => {
-      toast.error('Error al eliminar el producto');
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al eliminar el producto');
     },
   });
 }

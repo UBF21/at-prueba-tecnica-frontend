@@ -6,14 +6,11 @@ import {
   deleteCustomer,
 } from '../api/customers';
 import type {
+  ApiError,
   CreateCustomerRequest,
   UpdateCustomerRequest,
 } from '../types';
 
-/**
- * Hook to create a new customer.
- * Shows toast notifications for success/error and invalidates customers list.
- */
 export function useCreateCustomerMutation() {
   const queryClient = useQueryClient();
 
@@ -24,17 +21,12 @@ export function useCreateCustomerMutation() {
       toast.success('Cliente creado exitosamente');
       return response;
     },
-    onError: (error: any) => {
-      const message = error.message || 'Error al crear el cliente';
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al crear el cliente');
     },
   });
 }
 
-/**
- * Hook to update a customer.
- * Shows toast notifications for success/error and invalidates queries.
- */
 export function useUpdateCustomerMutation() {
   const queryClient = useQueryClient();
 
@@ -51,17 +43,12 @@ export function useUpdateCustomerMutation() {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       toast.success('Cliente actualizado exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.message || 'Error al actualizar el cliente';
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al actualizar el cliente');
     },
   });
 }
 
-/**
- * Hook to delete a customer.
- * Shows toast notifications for success/error and invalidates customers list.
- */
 export function useDeleteCustomerMutation() {
   const queryClient = useQueryClient();
 
@@ -71,9 +58,8 @@ export function useDeleteCustomerMutation() {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       toast.success('Cliente eliminado exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.message || 'Error al eliminar el cliente';
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(error.message || 'Error al eliminar el cliente');
     },
   });
 }
