@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useDeleteProductMutation } from './useProductMutations';
+import { useIsAdmin } from './useAuth';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Product } from '../types';
 
@@ -10,6 +11,7 @@ import type { Product } from '../types';
  */
 export function useProductColumns(onDeleteClick?: (productId: string) => void) {
   const deleteProductMutation = useDeleteProductMutation();
+  const isAdmin = useIsAdmin();
 
   const columns: ColumnDef<Product>[] = useMemo(
     () => [
@@ -77,6 +79,7 @@ export function useProductColumns(onDeleteClick?: (productId: string) => void) {
         header: 'Acciones',
         cell: (info) => {
           const product = info.row.original;
+          if (!isAdmin) return <span className="text-xs text-text-muted">Solo lectura</span>;
           return (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -106,7 +109,7 @@ export function useProductColumns(onDeleteClick?: (productId: string) => void) {
         },
       },
     ],
-    [deleteProductMutation]
+    [deleteProductMutation, isAdmin]
   );
 
   return columns;

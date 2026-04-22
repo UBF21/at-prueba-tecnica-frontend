@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useDeleteOrderMutation } from './useOrderMutations';
+import { useIsAdmin } from './useAuth';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Order, OrderStatus } from '../types';
 
@@ -46,6 +47,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
  */
 export function useOrderColumns(onDeleteClick?: (orderId: string) => void) {
   const deleteOrderMutation = useDeleteOrderMutation();
+  const isAdmin = useIsAdmin();
 
   const columns: ColumnDef<Order>[] = useMemo(
     () => [
@@ -100,6 +102,7 @@ export function useOrderColumns(onDeleteClick?: (orderId: string) => void) {
         header: 'Acciones',
         cell: (info) => {
           const order = info.row.original;
+          if (!isAdmin) return <span className="text-xs text-text-muted">Solo lectura</span>;
           return (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -129,7 +132,7 @@ export function useOrderColumns(onDeleteClick?: (orderId: string) => void) {
         },
       },
     ],
-    [deleteOrderMutation]
+    [deleteOrderMutation, isAdmin]
   );
 
   return columns;

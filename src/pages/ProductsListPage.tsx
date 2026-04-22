@@ -8,6 +8,7 @@ import { DeleteConfirmationSheet } from '../components/DeleteConfirmationSheet';
 import { useProducts } from '../hooks/useProducts';
 import { useProductColumns } from '../hooks/useProductColumns';
 import { useDeleteProductMutation } from '../hooks/useProductMutations';
+import { useIsAdmin } from '../hooks/useAuth';
 import type { Product } from '../types';
 
 function ProductsListPage() {
@@ -19,6 +20,7 @@ function ProductsListPage() {
   const pageSize = 10;
 
   const deleteProductMutation = useDeleteProductMutation();
+  const isAdmin = useIsAdmin();
   const { data: response, isLoading, error } = useProducts({
     page: pageIndex + 1,
     pageSize,
@@ -69,24 +71,26 @@ function ProductsListPage() {
         </motion.div>
 
         {/* Create button */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex justify-between items-center"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setSelectedProduct(undefined);
-              setIsSheetOpen(true);
-            }}
-            className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8 flex justify-between items-center"
           >
-            + Crear Producto
-          </motion.button>
-        </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setSelectedProduct(undefined);
+                setIsSheetOpen(true);
+              }}
+              className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+            >
+              + Crear Producto
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* Table or empty state */}
         {products.length > 0 ? (
@@ -102,10 +106,10 @@ function ProductsListPage() {
               totalPages={response?.totalPages || 1}
               currentPage={pageIndex}
               onPageChange={setPageIndex}
-              onRowClick={(product) => {
+              onRowClick={isAdmin ? (product) => {
                 setSelectedProduct(product);
                 setIsSheetOpen(true);
-              }}
+              } : undefined}
             />
           </motion.div>
         ) : (
@@ -124,17 +128,19 @@ function ProductsListPage() {
                 <p className="text-text-muted text-sm mt-1">Crea tu primer producto para incluirlo en las órdenes</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setSelectedProduct(undefined);
-                setIsSheetOpen(true);
-              }}
-              className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
-            >
-              Crear el primer producto
-            </motion.button>
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setSelectedProduct(undefined);
+                  setIsSheetOpen(true);
+                }}
+                className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
+              >
+                Crear el primer producto
+              </motion.button>
+            )}
           </motion.div>
         )}
 

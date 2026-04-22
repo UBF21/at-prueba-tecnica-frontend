@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useDeleteCustomerMutation } from './useCustomerMutations';
+import { useIsAdmin } from './useAuth';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Customer } from '../types';
 
@@ -10,6 +11,7 @@ import type { Customer } from '../types';
  */
 export function useCustomerColumns(onDeleteClick?: (customerId: string) => void) {
   const deleteCustomerMutation = useDeleteCustomerMutation();
+  const isAdmin = useIsAdmin();
 
   const columns: ColumnDef<Customer>[] = useMemo(
     () => [
@@ -72,6 +74,7 @@ export function useCustomerColumns(onDeleteClick?: (customerId: string) => void)
         header: 'Acciones',
         cell: (info) => {
           const customer = info.row.original;
+          if (!isAdmin) return <span className="text-xs text-text-muted">Solo lectura</span>;
           return (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -101,7 +104,7 @@ export function useCustomerColumns(onDeleteClick?: (customerId: string) => void)
         },
       },
     ],
-    [deleteCustomerMutation]
+    [deleteCustomerMutation, isAdmin]
   );
 
   return columns;

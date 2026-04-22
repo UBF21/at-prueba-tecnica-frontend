@@ -11,6 +11,7 @@ import { useOrders } from '../hooks/useOrders';
 import { useOrderColumns } from '../hooks/useOrderColumns';
 import { useDeleteOrderMutation } from '../hooks/useOrderMutations';
 import { useCustomers } from '../hooks/useCustomers';
+import { useIsAdmin } from '../hooks/useAuth';
 import type { GetOrdersParams, Order } from '../types';
 
 function OrdersListPage() {
@@ -28,6 +29,7 @@ function OrdersListPage() {
   };
 
   const deleteOrderMutation = useDeleteOrderMutation();
+  const isAdmin = useIsAdmin();
 
   const { data: customersResponse } = useCustomers({ page: 1, pageSize: 1 });
   const hasCustomers = (customersResponse?.data?.length ?? 0) > 0;
@@ -94,21 +96,23 @@ function OrdersListPage() {
         </motion.div>
 
         {/* Create button */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex justify-between items-center"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleOpenCreateOrder}
-            className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8 flex justify-between items-center"
           >
-            + Crear Orden
-          </motion.button>
-        </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleOpenCreateOrder}
+              className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+            >
+              + Crear Orden
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* Table or empty state */}
         {orders.length > 0 ? (
@@ -124,10 +128,10 @@ function OrdersListPage() {
               totalPages={response?.totalPages || 1}
               currentPage={pageIndex}
               onPageChange={setPageIndex}
-              onRowClick={(order) => {
+              onRowClick={isAdmin ? (order) => {
                 setSelectedOrder(order);
                 setIsSheetOpen(true);
-              }}
+              } : undefined}
             />
           </motion.div>
         ) : (
@@ -146,14 +150,16 @@ function OrdersListPage() {
                 <p className="text-text-muted text-sm mt-1">Crea tu primera orden para comenzar</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleOpenCreateOrder}
-              className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
-            >
-              Crear la primera orden
-            </motion.button>
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleOpenCreateOrder}
+                className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
+              >
+                Crear la primera orden
+              </motion.button>
+            )}
           </motion.div>
         )}
 

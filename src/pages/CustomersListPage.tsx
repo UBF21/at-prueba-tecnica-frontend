@@ -8,6 +8,7 @@ import { DeleteConfirmationSheet } from '../components/DeleteConfirmationSheet';
 import { useCustomers } from '../hooks/useCustomers';
 import { useCustomerColumns } from '../hooks/useCustomerColumns';
 import { useDeleteCustomerMutation } from '../hooks/useCustomerMutations';
+import { useIsAdmin } from '../hooks/useAuth';
 import type { GetCustomersParams, Customer } from '../types';
 
 function CustomersListPage() {
@@ -24,6 +25,7 @@ function CustomersListPage() {
   };
 
   const deleteCustomerMutation = useDeleteCustomerMutation();
+  const isAdmin = useIsAdmin();
   const { data: response, isLoading, error } = useCustomers(params);
   const customerColumns = useCustomerColumns((customerId) => {
     setCustomerToDelete(customerId);
@@ -71,24 +73,26 @@ function CustomersListPage() {
         </motion.div>
 
         {/* Create button */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex justify-between items-center"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setSelectedCustomer(undefined);
-              setIsSheetOpen(true);
-            }}
-            className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8 flex justify-between items-center"
           >
-            + Crear Cliente
-          </motion.button>
-        </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setSelectedCustomer(undefined);
+                setIsSheetOpen(true);
+              }}
+              className="px-8 py-3 bg-gradient-to-r from-gold-primary to-gold-bright hover:shadow-lg hover:shadow-gold-primary/50 text-surface-base font-bold rounded-lg transition-all duration-200 shadow-lg uppercase tracking-wider text-sm"
+            >
+              + Crear Cliente
+            </motion.button>
+          </motion.div>
+        )}
 
         {/* Table or empty state */}
         {customers.length > 0 ? (
@@ -104,10 +108,10 @@ function CustomersListPage() {
               totalPages={response?.totalPages || 1}
               currentPage={pageIndex}
               onPageChange={setPageIndex}
-              onRowClick={(customer) => {
+              onRowClick={isAdmin ? (customer) => {
                 setSelectedCustomer(customer);
                 setIsSheetOpen(true);
-              }}
+              } : undefined}
             />
           </motion.div>
         ) : (
@@ -126,17 +130,19 @@ function CustomersListPage() {
                 <p className="text-text-muted text-sm mt-1">Agrega tu primer cliente para empezar a gestionar órdenes</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setSelectedCustomer(undefined);
-                setIsSheetOpen(true);
-              }}
-              className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
-            >
-              Crear el primer cliente
-            </motion.button>
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setSelectedCustomer(undefined);
+                  setIsSheetOpen(true);
+                }}
+                className="px-6 py-3 bg-gold-primary hover:bg-gold-bright text-surface-base font-semibold rounded-lg transition-all duration-200"
+              >
+                Crear el primer cliente
+              </motion.button>
+            )}
           </motion.div>
         )}
 
