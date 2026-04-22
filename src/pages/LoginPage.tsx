@@ -156,16 +156,27 @@ function LoginPage() {
           </form>
 
           {/* Credentials hint */}
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.25 }}
-            className="text-center text-text-muted text-xs mt-8 leading-relaxed"
+            className="mt-8 space-y-2"
           >
-            Usuario: admin@retopedidos.com
-            <br />
-            Contraseña: Admin123!
-          </motion.p>
+            {[
+              { role: 'Admin', email: 'admin@retopedidos.com', password: 'Admin123!' },
+              { role: 'Usuario', email: 'user@retopedidos.com', password: 'User123!' },
+            ].map(({ role, email, password }) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => { setEmail(email); setPassword(password); }}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-overlay border border-border-default hover:border-gold-dim/50 transition-colors duration-200 group"
+              >
+                <span className="text-xs font-semibold text-gold-primary/70 group-hover:text-gold-primary uppercase tracking-wider">{role}</span>
+                <span className="text-xs text-text-muted group-hover:text-text-secondary">{email}</span>
+              </button>
+            ))}
+          </motion.div>
         </div>
       </motion.div>
     </div>
